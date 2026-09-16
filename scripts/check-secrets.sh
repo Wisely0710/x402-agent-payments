@@ -13,6 +13,9 @@
 # --history covers what the other modes cannot: a value that was committed and
 # deleted later is still in the repository, so it is still a leak. Historical
 # hits are reported once per location+pattern, with the earliest matching commit.
+# Scope: commits reachable from refs (all branches and tags). Objects that only
+# survive in a local reflog (amend/rebase) and commits a remote kept after a
+# force-push are out of reach — for those, rotate the value.
 #
 # Allowlist: scripts/secret-scan-allow.txt — one extended regex per line
 # (comments with "#"), matched against the raw "path:line:content" hit. Use it
