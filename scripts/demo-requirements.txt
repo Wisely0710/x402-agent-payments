@@ -1,0 +1,6 @@
+# Dependencies of scripts/demo.sh — deliberately minimal: the demo drives the
+# verifier (seller side) and the buying client (mcp side) without the MCP SDK,
+# so it installs in seconds on any machine.
+x402[evm]>=2.22
+x402[httpx]>=2.22
+eth-account>=0.13

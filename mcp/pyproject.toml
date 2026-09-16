@@ -39,5 +39,5 @@ ignore = ["RUF001", "RUF002", "RUF003"]
 python_version = "3.11"
 files = ["src", "examples", "tests"]
 explicit_package_bases = true
-mypy_path = "src"
+mypy_path = "src:../verifier"
 ignore_missing_imports = true
