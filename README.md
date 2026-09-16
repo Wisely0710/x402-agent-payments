@@ -108,8 +108,9 @@ Wire coverage: x402 v2 HTTP (`PAYMENT-REQUIRED`, `PAYMENT-SIGNATURE`), `exact` s
 ## Development
 
 ```bash
-scripts/install-hooks.sh   # core.hooksPath -> .githooks (pre-commit secret scan)
-scripts/check-secrets.sh   # the same scan over all tracked files
+scripts/install-hooks.sh            # core.hooksPath -> .githooks (pre-commit secret scan)
+scripts/check-secrets.sh            # the same scan over all tracked files
+scripts/check-secrets.sh --history  # ... and over every commit (catches deleted values)
 ```
 
 CI runs the gates documented above per component — `ruff` (lint + format), `mypy`, `pytest` for the two Python packages; `biome`, `tsc`, `node --test` for the client; the secret scan; and the demo end to end.

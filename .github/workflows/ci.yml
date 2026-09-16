@@ -14,8 +14,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # --history scans every commit, not just the tip
       - name: Scan tracked files for secrets
         run: ./scripts/check-secrets.sh
+      - name: Scan git history for secrets
+        run: ./scripts/check-secrets.sh --history
 
   verifier:
     name: verifier (python ${{ matrix.python }})
