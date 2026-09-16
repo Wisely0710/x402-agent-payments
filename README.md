@@ -42,7 +42,7 @@ The browser path is the same handshake from the other side: [`client/`](client/)
 ### 1. Run the paid flow (about 30 seconds)
 
 ```bash
-git clone git@github.com:Wisely0710/x402-agent-payments.git
+git clone https://github.com/Wisely0710/x402-agent-payments.git
 cd x402-agent-payments
 scripts/demo.sh
 ```
