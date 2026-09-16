@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+# Pre-commit hook: scan staged content for secrets.
+# Install with: scripts/install-hooks.sh
+exec "$(git rev-parse --show-toplevel)/scripts/check-secrets.sh" --staged

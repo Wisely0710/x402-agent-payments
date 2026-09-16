@@ -26,8 +26,6 @@ def load_account_from_env() -> tuple[EthAccountSigner, LocalAccount]:
     """
     key = os.environ.get("X402_AGENT_PRIVATE_KEY")
     if not key:
-        raise MissingPrivateKeyError(
-            "set X402_AGENT_PRIVATE_KEY (local testing only)"
-        )
+        raise MissingPrivateKeyError("set X402_AGENT_PRIVATE_KEY (local testing only)")
     account = Account.from_key(key)
     return EthAccountSigner(account), account

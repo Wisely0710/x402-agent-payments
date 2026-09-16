@@ -12,6 +12,7 @@ from x402.http.utils import (
     decode_payment_signature_header,
     encode_payment_required_header,
 )
+from x402.schemas import PaymentPayloadV1
 from x402.schemas.payments import (
     PaymentPayload,
     PaymentRequired,
@@ -30,8 +31,12 @@ class X402V2Adapter:
     so no SDK type leaks into application code.
     """
 
-    def parse_payment_payload(self, header: str) -> PaymentPayload:
-        """Decode a payment signature header value into an SDK model."""
+    def parse_payment_payload(self, header: str) -> PaymentPayload | PaymentPayloadV1:
+        """Decode a payment signature header value into an SDK model.
+
+        The official decoder is shared with x402 v1, so the result may be a v1
+        payload; callers must narrow to :class:`PaymentPayload` (v2) before use.
+        """
         return decode_payment_signature_header(header)
 
     def build_requirements(

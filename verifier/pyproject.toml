@@ -12,6 +12,8 @@ dependencies = [
 dev = [
     "pytest>=8",
     "eth-account>=0.13",
+    "mypy>=1.11,<2",
+    "ruff>=0.16,<0.17",
 ]
 
 [build-system]
@@ -23,3 +25,21 @@ packages = ["x402_v2"]
 
 [tool.pytest.ini_options]
 testpaths = ["x402_v2/tests", "tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+# Docs keep hand-formatted examples (ruff formats Python code fences in *.md,
+# which turns a prose edit into a format failure).
+extend-exclude = ["*.md"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+# RUF001/002/003 flag "ambiguous unicode" — they would flag every fullwidth
+# punctuation mark in the Chinese comments that ship with this code.
+ignore = ["RUF001", "RUF002", "RUF003"]
+
+[tool.mypy]
+python_version = "3.11"
+files = ["x402_v2", "tests"]
+ignore_missing_imports = true

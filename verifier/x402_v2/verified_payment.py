@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Optional
-
 from pydantic import BaseModel
 
 
@@ -21,7 +19,7 @@ class VerifiedPayment(BaseModel):
     nonce: str
     valid_after: str
     valid_before: str
-    authorization_identifier: Optional[str] = None
+    authorization_identifier: str | None = None
 
 
 def to_caip2(chain_id: int) -> str:

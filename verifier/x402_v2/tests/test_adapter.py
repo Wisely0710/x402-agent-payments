@@ -6,16 +6,16 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from x402.http.utils import (  # noqa: E402
+from x402.http.utils import (
     encode_payment_signature_header,
 )
-from x402.schemas.payments import (  # noqa: E402
+from x402.schemas.payments import (
     PaymentPayload,
     PaymentRequirements,
 )
 
-from x402_v2.adapter import X402V2Adapter  # noqa: E402
-from x402_v2.verified_payment import VerifiedPayment  # noqa: E402
+from x402_v2.adapter import X402V2Adapter
+from x402_v2.verified_payment import VerifiedPayment
 
 
 def build_requirements() -> PaymentRequirements:
@@ -83,6 +83,7 @@ class X402V2AdapterTest(unittest.TestCase):
         payload = build_payment_payload()
         header = encode_payment_signature_header(payload)
         decoded = self.adapter.parse_payment_payload(header)
+        assert isinstance(decoded, PaymentPayload)  # the official decoder also accepts v1
         vp = self.adapter.to_verified_payment(decoded)
         self.assertEqual(vp.payer, "0xpayer")
         self.assertEqual(vp.recipient, "0xrecipient")

@@ -8,20 +8,21 @@ EIP-712 reconstruction and EOA signature verification on the seller side, real
 from __future__ import annotations
 
 import threading
+from collections.abc import Iterator
 
 import pytest
 from eth_account import Account
 from x402.mechanisms.evm import EthAccountSigner
 
-from x402_mcp.client import PaidResourceClient
 from examples.mock_seller import create_server
+from x402_mcp.client import PaidResourceClient
 
 PAYER_KEY = "0x" + "22" * 32  # fixed test key (the mock seller accepts any payer)
 BASE_URL = "http://127.0.0.1"
 
 
 @pytest.fixture()
-def seller_url() -> str:
+def seller_url() -> Iterator[str]:
     server = create_server()
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()

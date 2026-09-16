@@ -13,19 +13,20 @@ import sys
 import time
 import unittest
 from pathlib import Path
+from typing import Any
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from eth_account import Account  # noqa: E402
-from x402.http.utils import (  # noqa: E402
+from eth_account import Account
+from x402.http.utils import (
     encode_payment_signature_header,
 )
-from x402.mechanisms.evm.eip712 import build_typed_data_for_signing  # noqa: E402
-from x402.mechanisms.evm.types import ExactEIP3009Authorization  # noqa: E402
-from x402.schemas.payments import PaymentPayload, PaymentRequirements  # noqa: E402
+from x402.mechanisms.evm.eip712 import build_typed_data_for_signing
+from x402.mechanisms.evm.types import ExactEIP3009Authorization
+from x402.schemas.payments import PaymentPayload, PaymentRequirements
 
-from x402_v2.provider import X402V2Provider, X402VerificationError  # noqa: E402
+from x402_v2.provider import X402V2Provider, X402VerificationError
 
 USDC = "0x2222222222222222222222222222222222222222"
 SALE = "0x6666666666666666666666666666666666666666"
@@ -77,10 +78,10 @@ def sign_authorization(
     )
     name = requirement.extra["name"]
     version = requirement.extra["version"]
-    domain, types, primary_type, message = build_typed_data_for_signing(
+    _domain, types, primary_type, message = build_typed_data_for_signing(
         auth, chain_id, requirement.asset, name, version
     )
-    typed_data = {
+    typed_data: dict[str, Any] = {
         "types": {
             k: [{"name": f["name"], "type": f["type"]} for f in fields]
             for k, fields in types.items()
@@ -272,9 +273,11 @@ class X402WireVerificationTest(unittest.TestCase):
         over_cap = fixed_now + provider.max_timeout_seconds + 1
         payload = build_payload(acct, requirement, valid_before=over_cap)
 
-        with patch("x402_v2.provider.time.time", return_value=fixed_now):
-            with self.assertRaises(X402VerificationError) as ctx:
-                provider.verify_payment(payload, requirement)
+        with (
+            patch("x402_v2.provider.time.time", return_value=fixed_now),
+            self.assertRaises(X402VerificationError) as ctx,
+        ):
+            provider.verify_payment(payload, requirement)
         self.assertEqual(ctx.exception.code, "invalid_time_window")
 
     def test_exact_max_timeout_deadline_accepted(self) -> None:
@@ -303,9 +306,11 @@ class X402WireVerificationTest(unittest.TestCase):
         fixed_now = 1_800_000_000
         payload = build_payload(acct, requirement, valid_before=fixed_now - 1)
 
-        with patch("x402_v2.provider.time.time", return_value=fixed_now):
-            with self.assertRaises(X402VerificationError) as ctx:
-                provider.verify_payment(payload, requirement)
+        with (
+            patch("x402_v2.provider.time.time", return_value=fixed_now),
+            self.assertRaises(X402VerificationError) as ctx,
+        ):
+            provider.verify_payment(payload, requirement)
         self.assertEqual(ctx.exception.code, "invalid_time_window")
 
     def test_below_minimum_remaining_window_rejected(self) -> None:
@@ -316,9 +321,11 @@ class X402WireVerificationTest(unittest.TestCase):
         fixed_now = 1_800_000_000
         payload = build_payload(acct, requirement, valid_before=fixed_now + 5)
 
-        with patch("x402_v2.provider.time.time", return_value=fixed_now):
-            with self.assertRaises(X402VerificationError) as ctx:
-                provider.verify_payment(payload, requirement)
+        with (
+            patch("x402_v2.provider.time.time", return_value=fixed_now),
+            self.assertRaises(X402VerificationError) as ctx,
+        ):
+            provider.verify_payment(payload, requirement)
         self.assertEqual(ctx.exception.code, "invalid_time_window")
 
     def test_exact_minimum_remaining_window_accepted(self) -> None:

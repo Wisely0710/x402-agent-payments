@@ -34,8 +34,8 @@ from x402.http.utils import (
 )
 from x402.mechanisms.evm import hash_typed_data, verify_eoa_signature
 from x402.mechanisms.evm.eip712 import build_typed_data_for_signing
-from x402.schemas import PaymentRequired, PaymentRequirements, ResourceInfo
 from x402.mechanisms.evm.types import ExactEIP3009Authorization
+from x402.schemas import PaymentPayload, PaymentRequired, PaymentRequirements, ResourceInfo
 
 # ── Seller configuration (hard-coded for the demo) ─────────────────
 TOKEN = "0x3333333333333333333333333333333333333333"  # local mock token (EIP-3009 domain)
@@ -72,7 +72,12 @@ def verify_payment_signature(header_value: str) -> tuple[bool, str, dict[str, An
 
     Returns (ok, message, authorization dict).
     """
-    payload = decode_payment_signature_header(header_value)
+    decoded = decode_payment_signature_header(header_value)
+    if not isinstance(decoded, PaymentPayload):
+        # The official decoder also accepts x402 v1 headers; this seller quotes
+        # and verifies v2 only.
+        return False, "unsupported x402 version", {}
+    payload = decoded
     accepted = payload.accepted
     auth = payload.payload["authorization"]
     signature = payload.payload["signature"]
@@ -106,7 +111,8 @@ def verify_payment_signature(header_value: str) -> tuple[bool, str, dict[str, An
         token_version=EIP712_VERSION,
     )
     digest = hash_typed_data(domain, types, primary_type, message)
-    signature_bytes = bytes.fromhex(signature[2:]) if signature.startswith("0x") else bytes.fromhex(signature)
+    hex_signature = signature[2:] if signature.startswith("0x") else signature
+    signature_bytes = bytes.fromhex(hex_signature)
     if not verify_eoa_signature(digest, signature_bytes, auth["from"]):
         return False, "signature invalid", auth
     return True, "paid", auth
@@ -125,10 +131,10 @@ class MockSellerHandler(BaseHTTPRequestHandler):
     No PAYMENT-SIGNATURE -> 402 quote; with it -> verify and deliver.
     """
 
-    def do_GET(self) -> None:  # noqa: N802 (HTTP method names are protocol-defined)
+    def do_GET(self) -> None:
         self._handle()
 
-    def do_POST(self) -> None:  # noqa: N802
+    def do_POST(self) -> None:
         self._handle()
 
     def _handle(self) -> None:

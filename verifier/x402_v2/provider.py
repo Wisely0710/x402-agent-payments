@@ -17,8 +17,8 @@ EIP-3009. Only the payer signature is verified here.
 import time
 
 from x402.mechanisms.evm.eip712 import build_typed_data_for_signing, hash_typed_data
-from x402.mechanisms.evm.verify import verify_eoa_signature
 from x402.mechanisms.evm.types import ExactEIP3009Authorization
+from x402.mechanisms.evm.verify import verify_eoa_signature
 from x402.schemas.payments import (
     PaymentPayload,
     PaymentRequired,
@@ -119,8 +119,16 @@ class X402V2Provider:
         )
 
     def parse_payment_signature(self, header: str) -> PaymentPayload:
-        """Decode a base64 ``PAYMENT-SIGNATURE`` header into a ``PaymentPayload``."""
-        return self._adapter.parse_payment_payload(header)
+        """Decode a base64 ``PAYMENT-SIGNATURE`` header into a ``PaymentPayload``.
+
+        The official decoder also accepts x402 **v1** headers; this provider is
+        v2-only, so a v1 payload fails closed with ``invalid_version`` here
+        rather than surfacing later as a missing attribute.
+        """
+        payload = self._adapter.parse_payment_payload(header)
+        if not isinstance(payload, PaymentPayload):
+            raise X402VerificationError("invalid_version", "Unsupported x402 payment version")
+        return payload
 
     def build_payment_required(
         self,
@@ -264,4 +272,3 @@ class X402V2Provider:
             raise X402VerificationError(
                 "invalid_signature", "Payment signature verification failed"
             )
-

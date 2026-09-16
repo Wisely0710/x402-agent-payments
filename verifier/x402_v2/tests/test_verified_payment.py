@@ -6,7 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from x402_v2.verified_payment import VerifiedPayment, from_caip2, to_caip2  # noqa: E402
+from x402_v2.verified_payment import VerifiedPayment, from_caip2, to_caip2
 
 
 class VerifiedPaymentTest(unittest.TestCase):

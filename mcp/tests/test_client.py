@@ -21,7 +21,7 @@ from x402.http.utils import (
     encode_payment_required_header,
 )
 from x402.mechanisms.evm import EthAccountSigner
-from x402.schemas import PaymentRequired, PaymentRequirements, ResourceInfo
+from x402.schemas import PaymentPayload, PaymentRequired, PaymentRequirements, ResourceInfo
 
 from x402_mcp.client import PaidResourceClient
 
@@ -60,9 +60,7 @@ def make_402_headers(amount_wei: int) -> dict[str, str]:
     return {PAYMENT_REQUIRED_HEADER: encode_payment_required_header(payment_required)}
 
 
-def make_transport(
-    log: list[httpx.Request], *, challenge_amount: int = 100
-) -> httpx.MockTransport:
+def make_transport(log: list[httpx.Request], *, challenge_amount: int = 100) -> httpx.MockTransport:
     def handler(request: httpx.Request) -> httpx.Response:
         log.append(request)
         if request.headers.get(PAYMENT_SIGNATURE_HEADER):
@@ -98,6 +96,7 @@ def test_pays_then_retries_with_official_header(client: PaidResourceClient) -> N
 
     # Official payload: decodable, correct scheme/network/amount, signed.
     payload = decode_payment_signature_header(header)
+    assert isinstance(payload, PaymentPayload)  # the official decoder also accepts v1
     assert payload.x402_version == 2
     assert payload.accepted.scheme == "exact"
     assert payload.accepted.network == "eip155:31337"

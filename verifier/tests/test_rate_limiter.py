@@ -13,8 +13,8 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-import x402_v2.rate_limiter as rate_limiter_module  # noqa: E402
-from x402_v2.rate_limiter import RateLimiter  # noqa: E402
+import x402_v2.rate_limiter as rate_limiter_module
+from x402_v2.rate_limiter import RateLimiter
 
 
 class _FakeClock:

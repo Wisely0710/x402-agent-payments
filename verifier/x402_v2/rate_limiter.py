@@ -32,9 +32,7 @@ class RateLimiter:
 
         # Drop entries whose window has fully elapsed.
         self.requests = {
-            k: v
-            for k, v in self.requests.items()
-            if now - v["first_request"] < self.window_seconds
+            k: v for k, v in self.requests.items() if now - v["first_request"] < self.window_seconds
         }
 
         if key not in self.requests:
@@ -64,9 +62,7 @@ class RateLimiter:
 
         # Drop entries whose window has fully elapsed.
         self.requests = {
-            k: v
-            for k, v in self.requests.items()
-            if now - v["first_request"] < self.window_seconds
+            k: v for k, v in self.requests.items() if now - v["first_request"] < self.window_seconds
         }
 
         entry = self.requests.get(key)

@@ -1,5 +1,7 @@
 # x402-agent-payments
 
+[![CI](https://github.com/Wisely0710/x402-agent-payments/actions/workflows/ci.yml/badge.svg)](https://github.com/Wisely0710/x402-agent-payments/actions/workflows/ci.yml)
+
 An [x402](https://docs.x402.org) v2 payment stack for EVM networks: verify payments on the server, sign them in the browser, and let an AI agent pay for a resource over MCP.
 
 | Component | Language | What it is |
@@ -39,9 +41,18 @@ python3.11 -m venv .venv
 .venv/bin/python -m pytest -q
 ```
 
+## Development
+
+```bash
+scripts/install-hooks.sh   # core.hooksPath -> .githooks (pre-commit secret scan)
+scripts/check-secrets.sh   # the same scan, over all tracked files
+```
+
+CI runs the same commands that are documented above, per component: `ruff` (lint + format), `mypy`, `pytest` for the two Python packages, and `biome` + `tsc` + `build` for the client, plus the secret scan.
+
 ## Status
 
-Early. CI, a full quickstart, and an end-to-end demo (mock seller + local facilitator) are in progress.
+Early. CI (lint / type / test for all three components, plus a secret scan) is in place; a full quickstart and a scripted end-to-end demo are next.
 
 ## License
 

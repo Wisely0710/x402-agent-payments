@@ -1,14 +1,14 @@
-import {
+import { PaymentRequiredError, X402Error } from "./models";
+import type {
+  X402ClientOptions,
+  X402PaymentPayload,
   X402PaymentRequired,
   X402PaymentRequirement,
-  X402PaymentPayload,
   X402PaymentResult,
   X402PaymentSignature,
   X402TokenMetadata,
   X402TransferAuthorization,
-  X402ClientOptions,
 } from "./types";
-import { PaymentRequiredError, X402Error } from "./models";
 
 declare global {
   interface Window {
@@ -76,10 +76,7 @@ export class X402Client {
   }
 
   /** 提供給前端的主要 API，封裝 x402 支付流程 */
-  async payWithX402(
-    endpoint: string,
-    payload: X402PaymentPayload,
-  ): Promise<X402PaymentResult> {
+  async payWithX402(endpoint: string, payload: X402PaymentPayload): Promise<X402PaymentResult> {
     const url = `${this.options.providerUrl}${endpoint}`;
     const body: Record<string, unknown> = payload.body ?? {};
 
@@ -114,32 +111,22 @@ export class X402Client {
       const requirement = this.selectExactRequirement(required);
       const signedPayment = await this.signChallenge(requirement, userAddress);
       await this.delay(this.options.retryDelayMs ?? DEFAULT_RETRY_DELAY);
-      return this.sendRequest(
-        url,
-        body,
-        userAddress,
-        attempt + 1,
-        {
-          ...extraHeaders,
-          "PAYMENT-SIGNATURE": utf8ToBase64(JSON.stringify(signedPayment)),
-        },
-      );
+      return this.sendRequest(url, body, userAddress, attempt + 1, {
+        ...extraHeaders,
+        "PAYMENT-SIGNATURE": utf8ToBase64(JSON.stringify(signedPayment)),
+      });
     }
 
     if (!response.ok) {
       const detail = await response.text();
-      throw new X402Error(
-        `provider returned status ${response.status}: ${detail}`,
-      );
+      throw new X402Error(`provider returned status ${response.status}: ${detail}`);
     }
 
     return (await response.json()) as X402PaymentResult;
   }
 
   /** 從 402 回應解析官方 PaymentRequired（優先 canonical PAYMENT-REQUIRED header，其次 JSON body）。 */
-  private async parsePaymentRequired(
-    response: Response,
-  ): Promise<X402PaymentRequired> {
+  private async parsePaymentRequired(response: Response): Promise<X402PaymentRequired> {
     const header = response.headers.get("PAYMENT-REQUIRED");
     if (header) {
       try {
@@ -156,17 +143,12 @@ export class X402Client {
   }
 
   /** 選取相容的 exact EVM payment requirement。 */
-  private selectExactRequirement(
-    required: X402PaymentRequired,
-  ): X402PaymentRequirement {
+  private selectExactRequirement(required: X402PaymentRequired): X402PaymentRequirement {
     const requirement = required.accepts?.find(
-      r => r.scheme === "exact" && this.parseEip155ChainId(r.network) !== null,
+      (r) => r.scheme === "exact" && this.parseEip155ChainId(r.network) !== null,
     );
     if (!requirement) {
-      throw new PaymentRequiredError(
-        "no compatible exact EVM payment requirement",
-        required,
-      );
+      throw new PaymentRequiredError("no compatible exact EVM payment requirement", required);
     }
     return requirement;
   }
@@ -187,17 +169,12 @@ export class X402Client {
   }
 
   /** 解析 EIP-712 domain name/version：優先 requirement.extra，其次 tokenMetadata fallback。 */
-  private resolveTokenMetadata(
-    requirement: X402PaymentRequirement,
-  ): X402TokenMetadata {
+  private resolveTokenMetadata(requirement: X402PaymentRequirement): X402TokenMetadata {
     const extra = requirement.extra;
     if (extra?.name && extra?.version) {
       return { name: extra.name, version: extra.version, decimals: 6 };
     }
-    return (
-      this.options.tokenMetadata?.[requirement.asset.toLowerCase()] ??
-      DEFAULT_TOKEN_METADATA
-    );
+    return this.options.tokenMetadata?.[requirement.asset.toLowerCase()] ?? DEFAULT_TOKEN_METADATA;
   }
 
   /** 產生真實的 EIP-3009 TransferWithAuthorization 簽名並組成官方 PaymentPayload。 */
@@ -270,6 +247,6 @@ export class X402Client {
 
   /** 簡單的 sleep 工具，確保重試節奏一致 */
   private async delay(ms: number): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, ms));
+    await new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
