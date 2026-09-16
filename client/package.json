@@ -19,7 +19,8 @@
     "clean": "rm -rf dist",
     "check-types": "yarn exec tsc --noEmit",
     "lint": "biome check .",
-    "lint:fix": "biome check --write ."
+    "lint:fix": "biome check --write .",
+    "test": "yarn build && node --test \"test/*.test.mjs\""
   },
   "keywords": [
     "x402",

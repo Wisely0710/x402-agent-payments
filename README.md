@@ -11,7 +11,7 @@ The whole flow runs on localhost with no chain, no facilitator and no real key �
 | Component | Language | What it does |
 |---|---|---|
 | [`verifier/`](verifier/) | Python | Server side: builds the 402 challenge (`PAYMENT-REQUIRED`) and verifies `PAYMENT-SIGNATURE` (official x402 SDK, EIP-712 / EIP-3009). 33 tests. |
-| [`client/`](client/) | TypeScript | Browser side: 402 → EIP-3009 authorization signed by the injected wallet → retry with `PAYMENT-SIGNATURE`. No runtime dependencies. |
+| [`client/`](client/) | TypeScript | Browser side: 402 → EIP-3009 authorization signed by the injected wallet → retry with `PAYMENT-SIGNATURE`. 15 tests. No runtime dependencies. |
 | [`mcp/`](mcp/) | Python | Agent side: an MCP server that buys x402-protected resources on the agent's behalf, plus the paying client the demo uses. 6 tests. |
 
 ## How it fits together
@@ -79,7 +79,7 @@ cd client
 yarn install
 yarn lint          # biome
 yarn check-types   # tsc --noEmit
-yarn build
+yarn test          # builds dist/ and runs the node:test suite against a mock seller
 ```
 
 ### 4. mcp — Python 3.11+
@@ -112,11 +112,11 @@ scripts/install-hooks.sh   # core.hooksPath -> .githooks (pre-commit secret scan
 scripts/check-secrets.sh   # the same scan over all tracked files
 ```
 
-CI runs the gates documented above per component — `ruff` (lint + format), `mypy`, `pytest` for the two Python packages; `biome`, `tsc`, `build` for the client; the secret scan; and the demo end to end.
+CI runs the gates documented above per component — `ruff` (lint + format), `mypy`, `pytest` for the two Python packages; `biome`, `tsc`, `node --test` for the client; the secret scan; and the demo end to end.
 
 ## Status
 
-Early, but the core loop is real and covered: 39 tests plus an end-to-end demo that runs in CI. The TypeScript client is type-checked and built in CI but has no automated test suite yet, and only the `exact` scheme on EVM is implemented.
+Early, but the core loop is real and covered: 54 tests (verifier 33, client 15, mcp 6) plus an end-to-end demo that runs in CI. Only the `exact` scheme on EVM is implemented.
 
 ## License
 

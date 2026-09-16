@@ -1,4 +1,4 @@
-import { PaymentRequiredError, X402Error } from "./models";
+import { PaymentRequiredError, X402Error } from "./models.js";
 import type {
   X402ClientOptions,
   X402PaymentPayload,
@@ -8,7 +8,7 @@ import type {
   X402PaymentSignature,
   X402TokenMetadata,
   X402TransferAuthorization,
-} from "./types";
+} from "./types.js";
 
 declare global {
   interface Window {

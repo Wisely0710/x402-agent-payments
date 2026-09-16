@@ -36,5 +36,12 @@ const result = await client.payWithX402("/api/payment/x402", {
 ## Checks
 
 ```bash
+yarn lint          # biome check
 yarn check-types   # tsc --noEmit, no emit side effects
+yarn test          # builds dist/ and runs the node:test suite
 ```
+
+`yarn test` drives the built package (`dist/`, the same entry point `exports` publishes) against a
+`node:http` mock seller and a stubbed `window.ethereum` wallet: real `fetch`, real header codec, no
+network, no chain, no test dependencies. The build emits ESM with explicit `.js` specifiers, so
+`dist/` loads in Node as well as in bundlers.

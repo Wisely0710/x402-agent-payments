@@ -92,8 +92,8 @@ jobs:
         run: yarn lint
       - name: Type check
         run: yarn check-types
-      - name: Build
-        run: yarn build
+      - name: Build and test
+        run: yarn test
 
   demo:
     name: demo (chain-free paid flow)
