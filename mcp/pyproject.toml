@@ -1,0 +1,21 @@
+[project]
+name = "x402-mcp-server"
+version = "0.2.0"
+description = "MCP server that lets AI agents pay for x402-protected resources with an EVM wallet"
+requires-python = ">=3.11"
+dependencies = [
+    "httpx>=0.27",
+    "x402[httpx,evm]>=2.22",
+    "mcp>=1.6,<2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# "src" first so the local package wins over any installed copy; "." so that
+# the tests can import examples.mock_seller.
+pythonpath = ["src", "."]

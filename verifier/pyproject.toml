@@ -1,0 +1,25 @@
+[project]
+name = "x402-v2-verifier"
+version = "0.1.0"
+description = "Verification-only x402 v2 payment provider for EVM networks (EIP-712 / EIP-3009), built on the official x402 Python SDK."
+requires-python = ">=3.11"
+dependencies = [
+    "x402[evm]>=2.22,<3",
+    "pydantic>=2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "eth-account>=0.13",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["x402_v2"]
+
+[tool.pytest.ini_options]
+testpaths = ["x402_v2/tests", "tests"]

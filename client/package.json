@@ -1,0 +1,37 @@
+{
+  "name": "x402-client",
+  "version": "0.1.0",
+  "description": "Framework-agnostic browser client for the x402 v2 payment flow (EIP-3009 / EIP-712 signing over HTTP 402).",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "check-types": "yarn exec tsc --noEmit"
+  },
+  "keywords": [
+    "x402",
+    "eip-3009",
+    "eip712",
+    "payments",
+    "typescript"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  },
+  "packageManager": "yarn@3.2.3+sha512.f26f951f67de0c6a33ee381e5ff364709c87e70eb5e65c694e4facde3512f1fa80b8679e6ba31ce7d340fbb46f08dd683af9457e240f25a204be7427940d767e",
+  "engines": {
+    "node": ">=22.13.0"
+  }
+}

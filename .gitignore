@@ -1,0 +1,33 @@
+# --- Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+
+# --- Node / Yarn
+node_modules/
+**/.yarn/cache/
+**/.yarn/install-state.gz
+**/.yarn/build-state.yml
+**/.yarn/unplugged/
+.pnp.*
+
+# --- Environment and secrets
+.env
+.env.*
+!.env.example
+*.env.local
+**/keystore/**
+*.key
+*.pem
+
+# --- OS / editor
+.DS_Store
+.obsidian/
+*.swp
