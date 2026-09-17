@@ -12,7 +12,7 @@ The whole flow runs on localhost with no chain, no facilitator and no real key �
 |---|---|---|
 | [`verifier/`](verifier/) | Python | Server side: builds the 402 challenge (`PAYMENT-REQUIRED`) and verifies `PAYMENT-SIGNATURE` (official x402 SDK, EIP-712 / EIP-3009). 33 tests. |
 | [`client/`](client/) | TypeScript | Browser side: 402 → EIP-3009 authorization signed by the injected wallet → retry with `PAYMENT-SIGNATURE`. 15 tests. No runtime dependencies. |
-| [`mcp/`](mcp/) | Python | Agent side: an MCP server that buys x402-protected resources on the agent's behalf, plus the paying client the demo uses. 6 tests. |
+| [`mcp/`](mcp/) | Python | Agent side: an MCP server that buys x402-protected resources on the agent's behalf, plus the paying client the demo uses. 8 tests. |
 
 ## How it fits together
 
@@ -88,7 +88,7 @@ yarn test          # builds dist/ and runs the node:test suite against a mock se
 cd mcp
 python3.11 -m venv .venv
 .venv/bin/pip install -e ".[dev]"
-.venv/bin/python -m pytest -q          # 6 tests, no chain
+.venv/bin/python -m pytest -q          # 8 tests, no chain
 X402_AGENT_PRIVATE_KEY=0x... .venv/bin/python -m x402_mcp.server   # MCP server mode (stdio)
 ```
 
@@ -117,7 +117,7 @@ CI runs the gates documented above per component — `ruff` (lint + format), `my
 
 ## Status
 
-Early, but the core loop is real and covered: 54 tests (verifier 33, client 15, mcp 6) plus an end-to-end demo that runs in CI. Only the `exact` scheme on EVM is implemented.
+Early, but the core loop is real and covered: 56 tests (verifier 33, client 15, mcp 8) plus an end-to-end demo that runs in CI. The mcp suite includes the full loop through a real MCP client over stdio (tool discovery, paid call, budget refusal). Only the `exact` scheme on EVM is implemented.
 
 ## License
 

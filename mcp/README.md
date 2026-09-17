@@ -26,7 +26,8 @@ src/x402_mcp/server.py    MCP tool layer (FastMCP): fetch_paid_resource
 src/x402_mcp/client.py    402 handling, budget check, signing, retry
 src/x402_mcp/signer.py    EthAccountSigner built from X402_AGENT_PRIVATE_KEY
 examples/mock_seller.py   tiny seller: quote with 402, verify, deliver
-tests/                    wire-level flow tests + end-to-end test (no chain)
+tests/                    wire-level flow tests + end-to-end tests (mock seller; the
+                          paid flow again through a real MCP client over stdio)
 ```
 
 Header names, codecs, typed-data structures and payload models all come from the
