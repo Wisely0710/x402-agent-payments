@@ -58,12 +58,14 @@ except X402VerificationError as exc:
 | `authorization_mismatch` | the signed authorization's `to` / `value` differ from the server requirement | reject; the client signed terms it was not asked for |
 | `requirement_mismatch` | the client's accepted `accepts[]` entry differs from the server requirement: scheme, CAIP-2 network / chain id, asset, amount, or `payTo` | re-challenge; the client picked the wrong entry |
 | `network_mismatch` | **configuration** error: the configured `network` CAIP-2 chain id conflicts with `chain_id` — raised when the provider is constructed | fix the server configuration |
+| `invalid_requirement` | **configuration** error: the server requirement is missing its EIP-712 token metadata (`extra.name` / `extra.version`), so no domain may be presumed | fix the server configuration; a requirement must carry `extra.name` / `extra.version` (the provider never falls back to its `token_name` / `token_version` defaults to verify) |
 
 ## Design notes
 
 - **Verification-only.** No facilitator calls, no transactions, no key custody. Settlement happens afterwards, on the resource owner's terms.
-- **Stateless verification.** Signatures are always re-verified with real crypto — there is no signature/nonce cache, so a replayed payload with a different `from` cannot hit a cached success.
-- **Fail closed.** Unknown networks, mismatched requirements, and missing token metadata all raise instead of degrading.
+- **Stateless verification.** Signatures are always re-verified with real crypto — there is no signature/nonce cache, so a replayed payload with a different `from` cannot hit a cached success. This is **not replay protection**: the provider consumes no nonce, so the same still-valid signature (same `from`) can be replayed. Consuming the authorization is the job of on-chain settlement (`transferFrom` / a facilitator) or of the resource owner.
+- **Fail closed.** Unknown networks, mismatched requirements, and missing token metadata (`invalid_requirement`) all raise instead of degrading.
+- **No built-in rate limiting.** The provider does not throttle requests at all; `x402_v2/rate_limiter.py` is a standalone in-memory helper for an application that wants request admission control, and nothing in this package calls it.
 
 ## Test layout
 
@@ -71,4 +73,4 @@ except X402VerificationError as exc:
 |---|---|
 | `x402_v2/tests/` | adapter + DTO mapping |
 | `tests/test_x402_wire.py` | official v2 wire, real EIP-712 signatures (valid, tampered, boundary windows) |
-| `tests/test_rate_limiter.py` | provider-side rate limiting |
+| `tests/test_rate_limiter.py` | standalone in-memory rate-limiter helper (unit tests; the provider itself does not rate-limit) |

@@ -244,9 +244,22 @@ class X402V2Provider:
                     "Authorization deadline exceeds the server max timeout",
                 )
             chain_id = from_caip2(requirement.network)
+            # X402-EIP712-METADATA-01：EIP-712 domain 只採用 requirement 自帶的
+            # token metadata。缺 name／version 時若退回 self.token_name／
+            # token_version，等於用未經 requirement 背書的 domain 驗簽
+            # （fail-open）；因此嚴格要求 extra.name／extra.version 為非空字串，
+            # 否則以 invalid_requirement 拒絕（自建 requirement 的 app 必須自己
+            # 帶上 metadata；provider 預設值僅供 create_payment_requirement 用）。
             extra = requirement.extra or {}
-            name = extra.get("name") or self.token_name
-            version = extra.get("version") or self.token_version
+            name = extra.get("name")
+            version = extra.get("version")
+            if not isinstance(name, str) or not isinstance(version, str) or not name or not version:
+                raise X402VerificationError(
+                    "invalid_requirement",
+                    "Payment requirement is missing the EIP-712 token metadata "
+                    "(extra.name / extra.version); refusing to verify against the "
+                    "provider defaults",
+                )
             domain, types, primary_type, message = build_typed_data_for_signing(
                 authorization,
                 chain_id,

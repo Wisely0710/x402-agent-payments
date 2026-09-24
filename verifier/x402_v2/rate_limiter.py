@@ -1,10 +1,14 @@
-"""Provider-owned in-memory rate limiter.
+"""In-memory rate limiter helper for application-level request admission.
 
 Replaces the vendored ``fast_x402.security.RateLimiter`` (which is being
-removed from the migration path). Preserves the exact ``max_requests`` /
-``window_seconds`` sliding-window semantics used by the old implementation:
-each ``key`` is allowed up to ``max_requests`` hits within a rolling window
-starting at the first request, and the window resets once it elapses.
+removed from the migration path). The semantics are a **fixed window per key**:
+the first request for a ``key`` anchors a window, that key is allowed up to
+``max_requests`` hits while the window lasts, and its budget resets once
+``window_seconds`` have elapsed since the anchor.
+
+The provider itself does not rate-limit: this is a standalone helper the
+application layer calls itself (e.g. before handling a request), not wiring
+inside :class:`x402_v2.provider.X402V2Provider`.
 """
 
 from __future__ import annotations

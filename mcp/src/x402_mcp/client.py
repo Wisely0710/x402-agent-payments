@@ -15,7 +15,8 @@ on the retry alike.
 
 The higher-level official paths (hooks, policies, spend controls,
 x402HTTPClient / PaymentRoundTripper automatic 402 handling, the official
-x402.mcp integration) are described in README.md.
+x402.mcp integration) are out of scope for this component: this client is
+built only from the low-level official components listed above.
 """
 
 from __future__ import annotations

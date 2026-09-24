@@ -10,7 +10,7 @@ The whole flow runs on localhost with no chain, no facilitator and no real key �
 
 | Component | Language | What it does |
 |---|---|---|
-| [`verifier/`](verifier/) | Python | Server side: builds the 402 challenge (`PAYMENT-REQUIRED`) and verifies `PAYMENT-SIGNATURE` (official x402 SDK, EIP-712 / EIP-3009). 33 tests. |
+| [`verifier/`](verifier/) | Python | Server side: builds the 402 challenge (`PAYMENT-REQUIRED`) and verifies `PAYMENT-SIGNATURE` (official x402 SDK, EIP-712 / EIP-3009). 35 tests. |
 | [`client/`](client/) | TypeScript | Browser side: 402 → EIP-3009 authorization signed by the injected wallet → retry with `PAYMENT-SIGNATURE`. 15 tests. No runtime dependencies. |
 | [`mcp/`](mcp/) | Python | Agent side: an MCP server that buys x402-protected resources on the agent's behalf, plus the paying client the demo uses. 8 tests. |
 
@@ -67,7 +67,7 @@ The first run creates `.demo/venv` with just the x402 SDK and eth-account (no MC
 cd verifier
 python3.11 -m venv .venv
 .venv/bin/pip install -e ".[dev]"
-.venv/bin/python -m pytest -q          # 33 tests
+.venv/bin/python -m pytest -q          # 35 tests
 .venv/bin/ruff check .                 # lint + format are the same gates CI runs
 .venv/bin/mypy
 ```
@@ -101,8 +101,8 @@ Wire coverage: x402 v2 HTTP (`PAYMENT-REQUIRED`, `PAYMENT-SIGNATURE`), `exact` s
 ## Design notes
 
 - **Official SDK first.** Header names, codecs, EIP-712 typed data and payload models come from the [`x402`](https://pypi.org/project/x402/) package; only policy (which `accepts[]` entry to take, the budget rule, key management) is application code. Hand-rolling the wire format only adds drift.
-- **Fail closed.** Unknown networks, mismatched requirements, missing token metadata and v1 payloads all raise instead of degrading.
-- **Stateless verification.** Signatures are re-verified with real crypto on every request — no signature/nonce cache that a changed `from` could hit.
+- **Fail closed.** Unknown networks, mismatched requirements, missing token metadata (`invalid_requirement`) and v1 payloads all raise instead of degrading.
+- **Stateless verification.** Signatures are re-verified with real crypto on every request — no signature/nonce cache that a changed `from` could hit. This is not replay protection: the same still-valid signature can be replayed, since the provider consumes no nonce — consuming it belongs to on-chain settlement or to the resource owner.
 - **Thin boundary.** Application code never sees SDK types: the verifier hands back a plain `VerifiedPayment` DTO.
 
 ## Development
@@ -117,7 +117,7 @@ CI runs the gates documented above per component — `ruff` (lint + format), `my
 
 ## Status
 
-Early, but the core loop is real and covered: 56 tests (verifier 33, client 15, mcp 8) plus an end-to-end demo that runs in CI. The mcp suite includes the full loop through a real MCP client over stdio (tool discovery, paid call, budget refusal). Only the `exact` scheme on EVM is implemented.
+Early, but the core loop is real and covered: 58 tests (verifier 35, client 15, mcp 8) plus an end-to-end demo that runs in CI. The mcp suite includes the full loop through a real MCP client over stdio (tool discovery, paid call, budget refusal). Only the `exact` scheme on EVM is implemented.
 
 ## License
 

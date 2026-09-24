@@ -258,6 +258,42 @@ class X402WireVerificationTest(unittest.TestCase):
             provider.verify_payment(payload, requirement)
         self.assertEqual(ctx.exception.code, "invalid_signature")
 
+    # ------------------------------- X402-EIP712-METADATA-01 requirement extra
+
+    def test_requirement_without_eip712_metadata_rejected(self) -> None:
+        """requirement 的 extra 為空（無 name／version）→ invalid_requirement。
+
+        X402-EIP712-METADATA-01：缺 metadata 時 provider 不得退回預設 EIP-712
+        domain 驗簽（fail closed）。簽名以原始的帶 metadata requirement 產生，
+        再把 server requirement 與 payload.accepted 的 extra 一起清空，讓拒絕
+        原因只剩 metadata 缺席。
+        """
+        acct = Account.create()
+        provider = make_provider()
+        requirement = build_requirement(provider)
+        payload = build_payload(acct, requirement)
+
+        requirement = requirement.model_copy(update={"extra": {}})
+        payload.accepted = requirement.model_copy(deep=True)
+
+        with self.assertRaises(X402VerificationError) as ctx:
+            provider.verify_payment(payload, requirement)
+        self.assertEqual(ctx.exception.code, "invalid_requirement")
+
+    def test_requirement_missing_version_metadata_rejected(self) -> None:
+        """extra 只有 name 缺 version → invalid_requirement（不得用預設 version）。"""
+        acct = Account.create()
+        provider = make_provider()
+        requirement = build_requirement(provider)
+        payload = build_payload(acct, requirement)
+
+        requirement = requirement.model_copy(update={"extra": {"name": provider.token_name}})
+        payload.accepted = requirement.model_copy(deep=True)
+
+        with self.assertRaises(X402VerificationError) as ctx:
+            provider.verify_payment(payload, requirement)
+        self.assertEqual(ctx.exception.code, "invalid_requirement")
+
     # ------------------------------------------- X402-EIP3009-BOUND-01 window
 
     def test_over_max_timeout_deadline_rejected(self) -> None:
